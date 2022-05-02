@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-import re
+import jsonlines
 
 
 class Parser:
@@ -61,7 +61,25 @@ class Parser:
         return f'Questions: \n {self.questions_parser()}\n\n Answers: \n {self.answers_parser()} '
 
 
+class DatasetGenerator:
+    """A class that takes some lists and generate a dataset"""
+
+    def __init__(self, column1, column2, *args):
+        self.col1 = column1
+        self.col2 = column2
+        pass
+
+    def create_jsonl(self):
+        """a method that generate a jsonl file"""
+        items = [{"prompt": item1, "completion": item2} for item1, item2 in self.col1 + self.col2]
+        return items
+        #todo: prova a creare un array e fare uno step precedente alla creazione del jsonl, cosi passi al metodo il csv o un pandas
+
+
 if __name__ == '__main__':
     url = 'https://www.agid.gov.it/it/node/1638'
     parser = Parser(url)
-    print(parser())
+    questions = parser.questions_parser()
+    answers = parser.answers_parser()
+    ds = DatasetGenerator(questions, answers)
+    print(ds.create_jsonl())
