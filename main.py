@@ -1,5 +1,5 @@
-import scraper_4finetuning
-
+# import scraper_4finetuning
+"""
 '''Scraping html SPID-faq page for the fine tuning and generating jsonl file'''
 
 url = 'https://www.agid.gov.it/it/node/1638'
@@ -10,3 +10,6 @@ answers = parser.answers_parser()
 questions.remove(questions[14])
 ds = scraper_4finetuning.DatasetGenerator(questions, answers)
 ds.create_jsonl()
+
+"""
+
