@@ -1,6 +1,7 @@
 import os
 import openai
 
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 completion = openai.Completion()
 
@@ -9,9 +10,12 @@ restart_sequence = "\nTu: "
 session_prompt = "Ciao, benvenuto nel servizio di assistenza di AGID, l'assistente è Simone e sarà in grado di fornirti assistenza.\n\nTu: Ciao Simone \nSimone: Ciao, sono Simone, come posso aiutarti?"
 
 
-def ask(question, chat_log=None):
+def chat(request_json, chat_log=None):
+    question = request_json['user_input']
+    if (chat_log == None):
+        chat_log = session_prompt
     prompt_text = f'{chat_log}{restart_sequence}: {question}{start_sequence}:'
-    response = openai.Completion.create(
+    response = completion.create(
         engine="text-davinci-002",
         prompt=prompt_text,
         temperature=0.50,
@@ -21,15 +25,9 @@ def ask(question, chat_log=None):
         presence_penalty=0.6,
         stop=[" Tu:", " Simone:"]
     )
-    story = response['choices'][0]['text']
-    return str(story)
+    reply = response['choices'][0]['text']
+    return str(reply)
 
 
-def append_interaction_to_chat_log(question, answer, chat_log=None):
-    """a function that help the chatbot to remember"""
-    if chat_log is None:
-        chat_log = session_prompt
-    return f'{chat_log}{restart_sequence} {question}{start_sequence}{answer}'
 
 
-    

@@ -1,17 +1,24 @@
-from flask import Flask, session, request, render_template
-from chatbot_skeleton import ask, append_interaction_to_chat_log
+import json
+
+from flask import Flask, request, session, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
+from chatbot_skeleton import chat
+
 app = Flask(__name__)
 load_dotenv()
+CORS(app)
 
 
-@app.route("/", methods=['GET','POST'])
+@app.route("/chat", methods=['POST'])
 def bot():
-    incoming_msg = request.values['Body']
-    chat_log = session.get('chat_log')
-    answer = ask(incoming_msg, chat_log)
-    session['chat_log'] = append_interaction_to_chat_log(incoming_msg, answer, chat_log)
-    return render_template(str(answer))
+    user_input = request.json
+    response_json = {"reply": ""}
+    answer = chat(user_input, chat_log=None)
+    response_json["reply"] = answer
+    response_json = jsonify(response_json)
+    return response_json
+
 
 if __name__ == '__main__':
     app.run()
