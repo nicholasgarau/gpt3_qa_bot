@@ -11,14 +11,15 @@ session_prompt = "Ciao, benvenuto nel servizio di assistenza di AGID, l'assisten
 
 
 def chat(request_json, chat_log=None):
+    """The main function which generate the response from gpt3 Q&A model"""
     question = request_json['user_input']
     if (chat_log == None):
         chat_log = session_prompt
     prompt_text = f'{chat_log}{restart_sequence}: {question}{start_sequence}:'
     response = completion.create(
-        engine="text-davinci-002",
+        engine="text-curie-001",
         prompt=prompt_text,
-        temperature=0.50,
+        temperature=0.60,
         max_tokens=250,
         top_p=1,
         frequency_penalty=0,
