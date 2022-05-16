@@ -2,23 +2,23 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 
-from chatbot_skeleton import chat, create_history
+from chatbot_skeleton import chat
 
 app = Flask(__name__)
 load_dotenv()
 CORS(app)
 
 chat_history = []
-model = 'text-davinci-002'
 
 
-@app.route("/chat", methods=['POST'])
+@app.route("/chat_GPT3_davinci", methods=['POST'])
 def bot():
     user_input = request.json
     response_json = {"reply": ""}
-    global model, chat_history
-    answer = chat(user_input, model, chat_history)
-    chat_history.append(create_history(user_input, answer, chat_history)) #todo: valuta se farlo con il +=, gira ma devi correggere il prompt
+    global chat_history
+#    if user_input["user_input"] == "clean history":
+#        chat_history = []
+    answer, chat_history = chat(user_input, chat_history)
     print(chat_history)
     response_json["reply"] = answer
     response_json = jsonify(response_json)
