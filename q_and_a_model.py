@@ -3,7 +3,7 @@ import openai
 import logging
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
-file = openai.File.create(file=open("faq_answers.jsonl", encoding="utf8"), purpose='answers')
+file_id = os.getenv("ID_CORPUS_AGID")
 
 """logger setup"""
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -17,7 +17,7 @@ def question_answering(request_json, model=str, chat_hist=None):
             search_model="ada",
             model=model,
             question=question,
-            file=file["id"],
+            file=file_id,
             examples_context="Lo Stato italiano ha deciso di stanziare fondi per la digitalizzazione del paese",
             examples=[["A quanto ammonta il finanziamento che lo Stato italiano ha previsto per la digitalizzazione?",
                        "49,86 miliardi di euro."]],
