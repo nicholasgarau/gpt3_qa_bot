@@ -34,14 +34,12 @@ class Parser:
         self.rawtext = []
 
     def html_parser(self):
-        '''a method that return raw text'''
-        html = requests.get(url)
+        html = requests.get(self.url)
         soup = BeautifulSoup(html.text, 'html.parser')
-        self.rawtext = soup.find('div', class_="Prose text-long").find_all()[2:]
+        self.rawtext = soup.find('div', class_="Prose text-long").get_text()
         return self.rawtext
 
     def questions_parser(self):
-        """a method that return questions"""
         self.html_parser()
         pattern_questions = '<p><strong>'
         self.questions = [str(item).replace('<p><strong>', '').replace('</strong></p>', '')[4:] for item in self.rawtext
@@ -49,7 +47,6 @@ class Parser:
         return self.questions
 
     def answers_parser(self):
-        """a method that return answers"""
         self.html_parser()
         pattern_answers = '<p>R'
         self.answers = [str(item).replace('<p>', '').replace('</p>', '')[4:] for item in self.rawtext
@@ -77,15 +74,18 @@ class DatasetGenerator:
             writer.write_all(items)
         return None
 
+
 if __name__ == '__main__':
-    url = 'https://www.agid.gov.it/it/node/1638'
-    parser = Parser(url)
-    questions = parser.questions_parser()
-    answers = parser.answers_parser()
-    #print(questions[14]) #not a question
-    questions.remove(questions[14])
+    urlspid = "https://www.agid.gov.it/it/piattaforme/spid"
+    urlpec = "https://www.agid.gov.it/it/piattaforme/posta-elettronica-certificata"
+    urlsiope = "https://www.agid.gov.it/it/piattaforme/siope"
+    parser_spid = Parser(urlspid).html_parser()
+    parser_pec = Parser(urlpec).html_parser()
+    parser_siope = Parser(urlsiope).html_parser()
 
-
-    ds = DatasetGenerator(questions, answers)
-    ds.create_jsonl()
-
+    corpus_dict = [{"text": parser_spid.strip(), "metadata": "documentazione spid"},
+                   {"text": parser_pec.strip(), "metadata": "documentazione pec"},
+                   {"text": parser_siope.strip(), "metadata": "documentazione siope"}
+                   ]
+    with jsonlines.open('json_files/corpus_agid.jsonl', 'w') as writer:
+        writer.write_all(corpus_dict)
