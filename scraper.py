@@ -36,7 +36,7 @@ class Parser:
     def html_parser(self):
         html = requests.get(self.url)
         soup = BeautifulSoup(html.text, 'html.parser')
-        self.rawtext = soup.find('div', class_="Prose text-long").get_text()
+        self.rawtext = soup.find('div', class_="container classicEditor").get_text()
         return self.rawtext
 
     def questions_parser(self):
@@ -76,16 +76,7 @@ class DatasetGenerator:
 
 
 if __name__ == '__main__':
-    urlspid = "https://www.agid.gov.it/it/piattaforme/spid"
-    urlpec = "https://www.agid.gov.it/it/piattaforme/posta-elettronica-certificata"
-    urlsiope = "https://www.agid.gov.it/it/piattaforme/siope"
-    parser_spid = Parser(urlspid).html_parser()
-    parser_pec = Parser(urlpec).html_parser()
-    parser_siope = Parser(urlsiope).html_parser()
-
-    corpus_dict = [{"text": parser_spid.strip(), "metadata": "documentazione spid"},
-                   {"text": parser_pec.strip(), "metadata": "documentazione pec"},
-                   {"text": parser_siope.strip(), "metadata": "documentazione siope"}
-                   ]
-    with jsonlines.open('json_files/corpus_agid.jsonl', 'w') as writer:
-        writer.write_all(corpus_dict)
+    url = "https://www.register.it/help/cose-spid-e-a-cosa-serve/"
+    parser = Parser(url).html_parser()
+    text_spid = parser.strip().replace('\n', '').replace("&nbsp", "")
+    print(text_spid)
