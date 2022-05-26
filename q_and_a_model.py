@@ -2,8 +2,9 @@ import os
 import openai
 import logging
 
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
-file_id = os.getenv("ID_CORPUS_AGID")
+
 
 """logger setup"""
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -30,3 +31,5 @@ def question_answering(request_json, model=str, docs=list):
         return str(reply)
     except RuntimeError:
         logger.error("ERROR in Dialog GPT3 pipeline", exc_info=True)
+
+
