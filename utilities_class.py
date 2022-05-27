@@ -1,6 +1,9 @@
 import os
 import openai
 import json
+import jsonlines
+import fitz
+import re
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -21,7 +24,7 @@ class Loader:
 
     """
 
-    def __init__(self, filename, path=None):
+    def __init__(self, path, filename):
         self.path = path
         self.file = filename
         self.fullpath = self.path + self.file
@@ -45,11 +48,16 @@ class JsonManipulator:
     path(str), default=None = the path for the file
     _________
     methods:
+    to_dict() = a method to open a jsonl file. it returns a list of dictionaries
+
+    extract_text() = a method to get keys and values of  the dictoinary create in to_dict method
+
+    create_json_for_answers() 0 a method that creates a json ready to be uploaded on OpenAI
 
 
     """
 
-    def __init__(self, path, filename):
+    def __init__(self, filename, path=None):
         self.path = path
         self.file = filename
         self.fullpath = self.path + self.file
@@ -66,7 +74,55 @@ class JsonManipulator:
 
     def extract_text(self):
         self.text_values = [f"{item['prompt']} {item['completion']}" for item in self.list_of_dictionary]
-        return self.text_values
+        return self
 
-    def create_json_for_answers(self):
-        #todo: completa questo metodo poi lancia il codice e riprova a uploadare il file su openai
+    def create_json_for_answers(self, filename):
+        json_text = [{"text": item, "metadata": "FAQ su SPID"} for item in self.text_values]
+        with jsonlines.open(filename, 'w') as writer:
+            writer.write_all(json_text)
+        return json_text
+
+
+def append_text_to_json(list_of_text, file):
+    json_template = [{"text": item, "metadata": "FAQ su CEC-PAC"} for item in list_of_text]
+    with jsonlines.open(file, mode='a') as writer:
+        writer.write_all(json_template)
+    return json_template
+
+
+class PdfManipulator:
+    """
+    A class for PDF operations
+    ______
+    attributes
+    """
+
+    def __init__(self, path, filename):
+        self.path = path
+        self.file = filename
+        self.fullpath = self.path + self.file
+        self.text = ""
+
+    def extract_pdf_text(self):
+        with fitz.open(self.fullpath) as doc:
+            for page in doc:
+                self.text += page.get_text()
+        return self
+
+
+if __name__ == '__main__':
+    """'faq_spid_full.jsonl' creation"""
+    # jsonl_imported = JsonManipulator('json_files/', 'faq_finetuning.jsonl').to_dict().extract_text().create_json_for_answers(
+    #    'faq_spid_full.jsonl')
+
+    """ snippet to extract the text from cecpac pdf"""
+    pdf_text = PdfManipulator("pdf_files/", "faq_cecpac.pdf").extract_pdf_text().text
+    txt_no_intest = pdf_text.replace('FAQ CHIUSURA CEC-PAC ', '')
+    print(txt_no_intest)
+    faqs = re.split(r'\n[1-9][.]', txt_no_intest)
+    faqs_clean = [item.replace('\n-', '').replace('\n', '') for item in faqs[1:]]
+    print(faqs_clean)
+
+    """appending new faqs from pdf"""
+
+    append_text_to_json(faqs_clean, 'json_files/faq_spid_full.jsonl')
