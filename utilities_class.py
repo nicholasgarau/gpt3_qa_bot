@@ -116,13 +116,20 @@ if __name__ == '__main__':
     #    'faq_spid_full.jsonl')
 
     """ snippet to extract the text from cecpac pdf"""
-    pdf_text = PdfManipulator("pdf_files/", "faq_cecpac.pdf").extract_pdf_text().text
-    txt_no_intest = pdf_text.replace('FAQ CHIUSURA CEC-PAC ', '')
-    print(txt_no_intest)
-    faqs = re.split(r'\n[1-9][.]', txt_no_intest)
-    faqs_clean = [item.replace('\n-', '').replace('\n', '') for item in faqs[1:]]
-    print(faqs_clean)
+    # pdf_text = PdfManipulator("pdf_files/", "faq_cecpac.pdf").extract_pdf_text().text
+    # txt_no_intest = pdf_text.replace('FAQ CHIUSURA CEC-PAC ', '')
+    # print(txt_no_intest)
+    # faqs = re.split(r'\n[1-9][.]', txt_no_intest)
+    # faqs_clean = [item.replace('\n-', '').replace('\n', '') for item in faqs[1:]]
+    # print(faqs_clean)
 
     """appending new faqs from pdf"""
 
-    append_text_to_json(faqs_clean, 'json_files/faq_spid_full.jsonl')
+    # append_text_to_json(faqs_clean, 'json_files/faq_spid_full.jsonl')
+
+    """upload on OpenAI"""
+
+    #file_faq_id = Loader('json_files/', 'faq_spid_full.jsonl').upload('answers', encoding='UTF-8').id_printer()
+
+    """ open and jsoning new faqs from spid.gov """
+

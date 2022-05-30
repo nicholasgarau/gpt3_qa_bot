@@ -36,7 +36,7 @@ class Parser:
     def html_parser(self):
         html = requests.get(self.url)
         soup = BeautifulSoup(html.text, 'html.parser')
-        self.rawtext = soup.find('div', class_="container classicEditor").get_text()
+        self.rawtext = soup.find('div', class_="row faqs-row").get_text()
         return self.rawtext
 
     def questions_parser(self):
@@ -76,7 +76,6 @@ class DatasetGenerator:
 
 
 if __name__ == '__main__':
-    url = "https://www.register.it/help/cose-spid-e-a-cosa-serve/"
+    url = "https://www.spid.gov.it/domande-frequenti/"
     parser = Parser(url).html_parser()
-    text_spid = parser.strip().replace('\n', '').replace("&nbsp", "")
-    print(text_spid)
+    print(parser)

@@ -51,7 +51,7 @@ def q_and_a():
     response_json = {"reply": ""}
     try:
         global q_and_a_hist, documents
-        answer = question_answering(user_input, model, documents)
+        answer = question_answering(user_input, model)
         response_json["reply"] = answer
         q_and_a_hist.append(f"Tu: {user_input['user_input']}\nSimone: {answer}")
         print(q_and_a_hist)

@@ -11,19 +11,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger()
 
 
-def question_answering(request_json, model=str, docs=list):
+def question_answering(request_json, model=str):
     question = request_json['user_input']
     try:
         response = openai.Answer.create(
             search_model="ada",
             model=model,
             question=question,
-            documents=docs,
+            file="file-R1wPlJdRLC7KO51w31t5mCP7",
             examples_context="La PEC è la Posta Elettronica Certificata",
             examples=[["Cosa significa PEC?",
                        "Posta Elettronica Certificata"]],
             max_rerank=10,
-            max_tokens=40,
+            max_tokens=70,
             stop=["\n", "<|endoftext|>"]
         )
         #print(response)
