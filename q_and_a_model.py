@@ -33,6 +33,6 @@ def question_answering(request_json, model=str):
             reply = response["answers"][0]
         return str(reply)
     except RuntimeError:
-        logger.error("ERROR in Dialog GPT3 pipeline", exc_info=True)
+        logger.error("ERROR in Dialog Q&A pipeline", exc_info=True)
 
 

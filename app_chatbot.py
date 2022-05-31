@@ -58,8 +58,8 @@ def q_and_a():
         response_json = jsonify(response_json)
         return response_json
     except Exception as e:
-        response_json = jsonify({'error': 'app dialog service error'})
-        logger.info(" APP DIALOG ERROR", exc_info=e)
+        response_json = jsonify({'error': 'app Q&A dialog service error'})
+        logger.info(" APP Q&A DIALOG ERROR", exc_info=e)
         return response_json
 
 
