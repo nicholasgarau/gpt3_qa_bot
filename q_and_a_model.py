@@ -18,7 +18,7 @@ def question_answering(request_json, model=str):
             search_model="ada",
             model=model,
             question=question,
-            file="file-R1wPlJdRLC7KO51w31t5mCP7",
+            file=os.getenv("FILE_SPID_BASIC"),
             examples_context="La PEC è la Posta Elettronica Certificata",
             examples=[["Cosa significa PEC?",
                        "Posta Elettronica Certificata"]],
@@ -27,7 +27,10 @@ def question_answering(request_json, model=str):
             stop=["\n", "<|endoftext|>"]
         )
         #print(response)
-        reply = response["answers"][0]
+        if response["answers"][0] == "":
+            reply = "Gentile utente, la prego di riformulare la domanda"
+        else:
+            reply = response["answers"][0]
         return str(reply)
     except RuntimeError:
         logger.error("ERROR in Dialog GPT3 pipeline", exc_info=True)

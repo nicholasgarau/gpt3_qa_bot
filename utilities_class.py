@@ -84,8 +84,8 @@ class JsonManipulator:
 
 
 def append_text_to_json(list_of_text, file):
-    json_template = [{"text": item, "metadata": "FAQ su CEC-PAC"} for item in list_of_text]
-    with jsonlines.open(file, mode='a') as writer:
+    json_template = [{"text": item, "metadata": "FAQ SPID base"} for item in list_of_text]
+    with jsonlines.open(file, mode='w') as writer:
         writer.write_all(json_template)
     return json_template
 
@@ -129,7 +129,19 @@ if __name__ == '__main__':
 
     """upload on OpenAI"""
 
-    #file_faq_id = Loader('json_files/', 'faq_spid_full.jsonl').upload('answers', encoding='UTF-8').id_printer()
+    # file_faq_id = Loader('json_files/', 'faq_spid_full.jsonl').upload('answers', encoding='UTF-8').id_printer()
 
     """ open and jsoning new faqs from spid.gov """
+
+    #with open('txt_files/SPID_faqs.txt', 'r', encoding='utf-8') as infile:
+     #   faqs_basic_spid = infile.readlines()
+
+    #faqs_spid_clean = [
+    #    item.replace('&nsbp', ' ').replace('\t', '').replace('\n', '').replace('\xa0', '').replace('\ufeff', '')
+     #   for item in faqs_basic_spid if len(item) > 1]
+    #print(faqs_spid_clean)
+
+    #append_text_to_json(faqs_spid_clean,'json_files/FAQ_base.jsonl')
+
+    file_spid_id = Loader('json_files/', 'FAQ_base.jsonl').upload('answers', encoding='UTF-8').id_printer()
 
