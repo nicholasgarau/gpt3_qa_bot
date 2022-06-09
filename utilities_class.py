@@ -57,10 +57,8 @@ class JsonManipulator:
 
     """
 
-    def __init__(self, filename, path=None):
-        self.path = path
-        self.file = filename
-        self.fullpath = self.path + self.file
+    def __init__(self, fullpath):
+        self.fullpath = fullpath
         self.list_of_dictionary = []
         self.text_values = None
 
@@ -82,12 +80,19 @@ class JsonManipulator:
             writer.write_all(json_text)
         return json_text
 
+    def extract_text_for_faqs(self):
+        faqs_list = [item['text'] for item in self.list_of_dictionary]
+        return faqs_list
+
 
 def append_text_to_json(list_of_text, file):
     json_template = [{"text": item, "metadata": "FAQ SPID base"} for item in list_of_text]
     with jsonlines.open(file, mode='w') as writer:
         writer.write_all(json_template)
     return json_template
+
+
+
 
 
 class PdfManipulator:
@@ -133,15 +138,18 @@ if __name__ == '__main__':
 
     """ open and jsoning new faqs from spid.gov """
 
-    #with open('txt_files/SPID_faqs.txt', 'r', encoding='utf-8') as infile:
-     #   faqs_basic_spid = infile.readlines()
+    # with open('txt_files/SPID_faqs.txt', 'r', encoding='utf-8') as infile:
+    #   faqs_basic_spid = infile.readlines()
 
-    #faqs_spid_clean = [
+    # faqs_spid_clean = [
     #    item.replace('&nsbp', ' ').replace('\t', '').replace('\n', '').replace('\xa0', '').replace('\ufeff', '')
-     #   for item in faqs_basic_spid if len(item) > 1]
-    #print(faqs_spid_clean)
+    #   for item in faqs_basic_spid if len(item) > 1]
+    # print(faqs_spid_clean)
 
-    #append_text_to_json(faqs_spid_clean,'json_files/FAQ_base.jsonl')
+    # append_text_to_json(faqs_spid_clean,'json_files/FAQ_base.jsonl')
 
-    file_spid_id = Loader('json_files/', 'FAQ_base.jsonl').upload('answers', encoding='UTF-8').id_printer()
+    # file_spid_id = Loader('json_files/', 'FAQ_base.jsonl').upload('answers', encoding='UTF-8').id_printer()
+
+
+
 

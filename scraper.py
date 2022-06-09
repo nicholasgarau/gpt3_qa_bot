@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 import requests
 import jsonlines
 import numpy as np
+import pandas as pd
+import string
 
 
 class Parser:
@@ -33,10 +35,10 @@ class Parser:
         self.questions = None
         self.rawtext = []
 
-    def html_parser(self):
+    def html_parser(self, class_to_scrape):
         html = requests.get(self.url)
-        soup = BeautifulSoup(html.text, 'html.parser')
-        self.rawtext = soup.find('div', class_="row faqs-row").get_text()
+        soup = BeautifulSoup(html.text.encode('latin-1'), 'html.parser')
+        self.rawtext = "".join([p.text for p in soup.find_all("div", class_=class_to_scrape)])
         return self.rawtext
 
     def questions_parser(self):
@@ -77,5 +79,33 @@ class DatasetGenerator:
 
 if __name__ == '__main__':
     url = "https://www.spid.gov.it/domande-frequenti/"
-    parser = Parser(url).html_parser()
-    print(parser)
+
+    """ Questions parsing """
+
+    questions_raw = Parser(url).html_parser("single-faq-header collapse-header")
+    # print(questions_raw)
+    questions_clean = [item.strip() for item in questions_raw.split('\n\n\n')]
+    # print(questions_clean)
+    print(len(questions_clean))
+
+    """ importing file with ordered answers """
+    with open('txt_files/answers_ordered.txt', 'r', encoding='UTF-8') as infile:
+        answers_raw = infile.readlines()
+
+    print(answers_raw)
+
+    answers_clean = [item.replace('\n', '') for item in answers_raw if len(item) > 1]
+
+    print(len(answers_clean))
+
+    """ dataframe creation and csv creation """
+
+    input_df_data = {
+        'id': pd.Series(range(1, 53)),
+        'question': questions_clean,
+        'answer': answers_clean
+    }
+
+    df_faq = pd.DataFrame(input_df_data)
+    print(df_faq)
+    df_faq.to_csv('txt_files/dataset_faqs.csv', index=False)
