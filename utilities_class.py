@@ -4,8 +4,11 @@ import json
 import jsonlines
 import fitz
 import re
+import pandas as pd
+from q_and_a_model import prompt
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
 
 
 class Loader:
@@ -57,8 +60,9 @@ class JsonManipulator:
 
     """
 
-    def __init__(self, fullpath):
+    def __init__(self, fullpath=None, dataframe=None):
         self.fullpath = fullpath
+        self.dataframe = dataframe
         self.list_of_dictionary = []
         self.text_values = None
 
@@ -84,15 +88,19 @@ class JsonManipulator:
         faqs_list = [item['text'] for item in self.list_of_dictionary]
         return faqs_list
 
+    def create_json_for_completion(self, filename):
+        json_text = [{"prompt": f"{prompt}{rows.question}", "completion": f"{rows.answer}"} for index, rows in self.dataframe.iterrows()]
+        with jsonlines.open(filename, 'w') as writer:
+            writer.write_all(json_text)
+        return json_text
+
+
 
 def append_text_to_json(list_of_text, file):
     json_template = [{"text": item, "metadata": "FAQ SPID base"} for item in list_of_text]
     with jsonlines.open(file, mode='w') as writer:
         writer.write_all(json_template)
     return json_template
-
-
-
 
 
 class PdfManipulator:
@@ -116,40 +124,5 @@ class PdfManipulator:
 
 
 if __name__ == '__main__':
-    """'faq_spid_full.jsonl' creation"""
-    # jsonl_imported = JsonManipulator('json_files/', 'faq_finetuning.jsonl').to_dict().extract_text().create_json_for_answers(
-    #    'faq_spid_full.jsonl')
-
-    """ snippet to extract the text from cecpac pdf"""
-    # pdf_text = PdfManipulator("pdf_files/", "faq_cecpac.pdf").extract_pdf_text().text
-    # txt_no_intest = pdf_text.replace('FAQ CHIUSURA CEC-PAC ', '')
-    # print(txt_no_intest)
-    # faqs = re.split(r'\n[1-9][.]', txt_no_intest)
-    # faqs_clean = [item.replace('\n-', '').replace('\n', '') for item in faqs[1:]]
-    # print(faqs_clean)
-
-    """appending new faqs from pdf"""
-
-    # append_text_to_json(faqs_clean, 'json_files/faq_spid_full.jsonl')
-
-    """upload on OpenAI"""
-
-    # file_faq_id = Loader('json_files/', 'faq_spid_full.jsonl').upload('answers', encoding='UTF-8').id_printer()
-
-    """ open and jsoning new faqs from spid.gov """
-
-    # with open('txt_files/SPID_faqs.txt', 'r', encoding='utf-8') as infile:
-    #   faqs_basic_spid = infile.readlines()
-
-    # faqs_spid_clean = [
-    #    item.replace('&nsbp', ' ').replace('\t', '').replace('\n', '').replace('\xa0', '').replace('\ufeff', '')
-    #   for item in faqs_basic_spid if len(item) > 1]
-    # print(faqs_spid_clean)
-
-    # append_text_to_json(faqs_spid_clean,'json_files/FAQ_base.jsonl')
-
-    # file_spid_id = Loader('json_files/', 'FAQ_base.jsonl').upload('answers', encoding='UTF-8').id_printer()
-
-
-
-
+    df_faqs = pd.read_csv('txt_files/dataset_faqs.csv')
+    txt_for_tuning = JsonManipulator(dataframe=df_faqs).create_json_for_completion('jsonl_files/faqs_for_tuning.jsonl')

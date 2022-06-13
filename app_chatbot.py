@@ -14,7 +14,7 @@ CORS(app)
 logger = logging.getLogger()
 chat_history = None
 q_and_a_hist = []
-model = "text-davinci-002"
+model = "davinci:ft-unica-tesigaraun-2022-06-13-11-28-47"
 
 df_faqs = pd.read_csv('txt_files/dataset_faqs.csv')
 
@@ -42,9 +42,8 @@ def q_and_a():
     user_input = request.json
     response_json = {"reply": ""}
     try:
-        global q_and_a_hist, df_faqs
-        merged_faqs = [" ".join([rows.question, rows.answer]) for index, rows in df_faqs.iterrows()]
-        answer = question_answering(user_input, merged_faqs, model)
+        global q_and_a_hist
+        answer = question_answering(user_input, model)
         response_json["reply"] = answer
         q_and_a_hist.append(f"Tu: {user_input['user_input']}\nSimone: {answer}")
         print(q_and_a_hist)
@@ -55,7 +54,7 @@ def q_and_a():
         logger.info(" APP Q&A DIALOG ERROR", exc_info=e)
         return response_json
 
-#todo: devo capire se ha senso passare alla funzione q_and_a il dataframe intero ed estrarre dopo i documenti
+
 
 if __name__ == '__main__':
     app.run()
