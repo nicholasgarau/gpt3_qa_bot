@@ -1,6 +1,8 @@
 import os
 import openai
 import logging
+from openai.embeddings_utils import get_embedding, cosine_similarity
+import numpy as np
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -26,7 +28,7 @@ def question_answering(request_json, model=str):
             engine=model,
             prompt=f"{prompt}{question}",
             temperature=0.30,
-            max_tokens=150,
+            max_tokens=200,
             frequency_penalty=0,
             presence_penalty=0.8,
             stop=["\nDomanda:", "<|endoftext|>"]
@@ -35,3 +37,25 @@ def question_answering(request_json, model=str):
         return str(reply).strip().replace('Risposta:', '')
     except RuntimeError:
         logger.error("ERROR in Dialog Q&A pipeline", exc_info=True)
+
+
+def extract_original_faq(df_faqs, request_json):
+    question = request_json['user_input']
+    df_faqs['babbage_search'] = df_faqs.question.apply(lambda x: get_embedding(x, engine='text-search-babbage-doc-001'))
+    try:
+        embedding = get_embedding(question, engine='text-search-babbage-query-001')
+        df_faqs['similarities'] = df_faqs.babbage_search.apply(lambda x: cosine_similarity(x, embedding))
+        res_df = df_faqs.sort_values('similarities', ascending=False).head(3)
+        res_df['id'] = res_df['id'].apply(str)
+        return res_df
+    except RuntimeError:
+        logger.error("ERROR in extraction faqs embedded", exc_info=True)
+
+
+def cosine_similarity_cast_fl(a, b):
+    a = np.asarray(a, dtype='float64')
+    b = np.asarray(b, dtype='float64')
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+
+    #todo: vettorizza e ottieni la cosine similarity tra le responses
