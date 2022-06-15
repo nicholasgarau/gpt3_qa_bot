@@ -52,10 +52,5 @@ def extract_original_faq(df_faqs, request_json):
         logger.error("ERROR in extraction faqs embedded", exc_info=True)
 
 
-def cosine_similarity_cast_fl(a, b):
-    a = np.asarray(a, dtype='float64')
-    b = np.asarray(b, dtype='float64')
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 
-    #todo: vettorizza e ottieni la cosine similarity tra le responses

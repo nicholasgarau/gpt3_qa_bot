@@ -3,8 +3,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import logging
 from chatbot_skeleton import chat
-from q_and_a_model import question_answering, extract_original_faq, cosine_similarity_cast_fl
+from q_and_a_model import question_answering, extract_original_faq
 import pandas as pd
+from benchmarking import get_cosine_similarity_res, jaccard_similarity
 
 app = Flask(__name__)
 load_dotenv()
@@ -44,7 +45,8 @@ def q_and_a():
     response_json = {"GPT reply": "",
                      "id faq": "",
                      "original faq": "",
-                     "cosine similarity": ""}
+                     "cosine similarity": "",
+                     "jaccard index": ""}
     try:
         global q_and_a_hist
         answer = question_answering(user_input, model)
@@ -54,7 +56,8 @@ def q_and_a():
         semantic_search_df = extract_original_faq(df_faqs, user_input)
         response_json["id faq"] = semantic_search_df['id'].values[0]
         response_json["original faq"] = semantic_search_df['answer'].values[0]
-        response_json["cosine similarity"] = str(cosine_similarity_cast_fl(answer, response_json["original faq"]))
+        response_json["cosine similarity"] = str(get_cosine_similarity_res(answer, response_json["original faq"]))
+        response_json["jaccard index"] = str(jaccard_similarity(answer, response_json["original faq"]))
         response_json = jsonify(response_json)
         return response_json
     except Exception as e:
