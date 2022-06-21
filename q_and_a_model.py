@@ -34,7 +34,7 @@ def question_answering(request_json, model=str):
             stop=["\nDomanda:", "<|endoftext|>"]
         )
         reply = response['choices'][0]['text']
-        return str(reply).strip().replace('Risposta:', '')
+        return str(". ".join(reply.split('. ')[:-1])).strip().replace('Risposta:', '')
     except RuntimeError:
         logger.error("ERROR in Dialog Q&A pipeline", exc_info=True)
 
