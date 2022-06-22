@@ -22,6 +22,12 @@ Domanda:
 
 
 def question_answering(request_json, model=str):
+    """
+    The model main function.
+    :param request_json: the user's input
+    :param model: the OpenAI model to use
+    :return: the GPT3 response
+    """
     question = request_json['user_input']
     try:
         response = openai.Completion.create(
@@ -40,6 +46,12 @@ def question_answering(request_json, model=str):
 
 
 def extract_original_faq(df_faqs, request_json):
+    """
+    A function that does a semantic text search with OpenAI embeddings
+    :param df_faqs: the original dataframe
+    :param request_json: the user's input
+    :return: a dataframe with a cosine similarity extra column
+    """
     question = request_json['user_input']
     df_faqs['babbage_search'] = df_faqs.question.apply(lambda x: get_embedding(x, engine='text-search-babbage-doc-001'))
     try:
